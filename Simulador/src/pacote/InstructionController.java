@@ -2,6 +2,8 @@
 package pacote;
 
 import java.awt.Color;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 
@@ -10,6 +12,7 @@ public class InstructionController {
 	private JLabel[] registers;
 	private JLabel[] memory;
 	private String op;
+	private List<String> assemblys = new ArrayList<>();
 	
 	public String getOp() {
 		return op;
@@ -20,11 +23,16 @@ public class InstructionController {
 		this.memory = memory;
 	}
 	
-	public void compile(String assembly) throws Exception {
-		
-		if (assembly == null || assembly.isEmpty()) {
-			return;
+	public void addAssembly(String assembly) {
+		if (assembly != null && !assembly.isEmpty()) {
+			assemblys.add(assembly);
 		}
+	}
+	
+	public void compile() throws Exception {
+		
+		String assembly = null;
+		op = null;
 		
 		for (int i = 0; i < registers.length; i++) {
 			
@@ -34,6 +42,12 @@ public class InstructionController {
 		for (int j = 0; j < memory.length; j++) {
 			
 			memory[j].setBackground(Color.black);
+		}
+		
+		if (!assemblys.isEmpty()) {
+			assembly = assemblys.remove(0);
+		} else {
+			return;
 		}
 		
 		String[] ins = assembly.split("\\s+");

@@ -25,9 +25,9 @@ public class Frame extends JFrame{
 		
 		this.setTitle("Simulador Mips");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(1400, 750);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setLocationRelativeTo(null);
-		this.setLayout(new BorderLayout(0, 3));
+		this.setLayout(new BorderLayout(3, 3));
 		
 		addTopPanel();
 		addMemoryPanel();
@@ -45,6 +45,7 @@ public class Frame extends JFrame{
 		this.add(panel, BorderLayout.NORTH);
 		
 		addText(panel);
+		addAddButton(panel);
 		addRunButton(panel);
 	}
 	
@@ -53,6 +54,16 @@ public class Frame extends JFrame{
 		tField = new JTextField();
 		tField.setPreferredSize(new Dimension(300, 25));
 		p.add(tField);
+	}
+	
+	private void addAddButton(JPanel panel) {
+		
+		JButton button = new JButton();
+		button.setText("Adicionar");
+		button.setPreferredSize(new Dimension(100, 25));
+		button.addActionListener(e -> addAssembly());
+		
+		panel.add(button);
 	}
 	
 	private void addRunButton(JPanel panel) {
@@ -65,10 +76,14 @@ public class Frame extends JFrame{
 		panel.add(button);
 	}
 	
+	private void addAssembly() {
+		inController.addAssembly(tField.getText());
+	}
+	
 	private void executeCode() {
 		
 		try {
-			inController.compile(tField.getText());
+			inController.compile();
 			repaint();
 		} catch (Exception e) {
 			System.out.println("Deu erro");
@@ -115,6 +130,21 @@ public class Frame extends JFrame{
 		this.add(panel, BorderLayout.CENTER);
 		addRegisterPanel(panel);
 		addDrawing(panel);
+		addPipeLine(panel);
+	}
+	
+	private void addPipeLine(JPanel p) {
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		panel.setPreferredSize(new Dimension(300, 300));
+		panel.setBackground(new Color(100, 100, 100));
+		
+		JPanel panelForDraw = new JPanel();
+		panelForDraw.setPreferredSize(new Dimension(600, 280));
+		panel.add(panelForDraw);
+		
+		p.add(panel, BorderLayout.SOUTH);
 	}
 	
 	private void addDrawing(JPanel p) {
