@@ -69,10 +69,10 @@ public class Frame extends JFrame{
 		
 		try {
 			inController.compile(tField.getText());
+			repaint();
 		} catch (Exception e) {
 			System.out.println("Deu erro");
 		}
-		repaint();
 	}
 	
 	private void addMemoryPanel() {

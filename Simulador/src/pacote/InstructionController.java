@@ -1,3 +1,4 @@
+
 package pacote;
 
 import java.awt.Color;
@@ -12,7 +13,7 @@ public class InstructionController {
 	private boolean regDst = false;
 	private boolean regWrite = false;
 	private boolean aluSrc = false;
-	private boolean memWrite = false;
+	private boolean memWrite = false; 
 	private boolean memRead = false;
 	private boolean memToReg = false;
 	private String aluOp = null;
@@ -82,7 +83,7 @@ public class InstructionController {
 		
 		String[] ins = assembly.split("\\s+");
 		
-		if (ins.length > 2) {
+		if (ins.length != 2) {
 			throw new Exception();
 		}
 		
@@ -111,7 +112,7 @@ public class InstructionController {
 		int[] array = new int[2];
 		
 		String[] values = ins[1].split(",");
-		if (values.length > 2) {
+		if (values.length != 2) {
 			throw new Exception();
 		}
 		
@@ -240,7 +241,7 @@ public class InstructionController {
 		int[] array = new int[2];
 		
 		String[] values = ins[1].split(",");
-		if (values.length > 2) {
+		if (values.length != 2) {
 			throw new Exception();
 		}
 		
@@ -270,7 +271,7 @@ public class InstructionController {
 		int[] array = new int[3];
 		
 		String[] values = ins[1].split(",");
-		if (values.length > 2) {
+		if (values.length != 2) {
 			throw new Exception();
 		}
 		
@@ -302,7 +303,7 @@ public class InstructionController {
 		int[] array = new int[3];
 		
 		String[] values = ins[1].split(",");
-		if (values.length > 3) {
+		if (values.length != 3) {
 			throw new Exception();
 		}
 		
