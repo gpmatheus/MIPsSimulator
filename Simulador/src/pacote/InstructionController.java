@@ -9,44 +9,7 @@ public class InstructionController {
 	
 	private JLabel[] registers;
 	private JLabel[] memory;
-	
-	private boolean regDst = false;
-	private boolean regWrite = false;
-	private boolean aluSrc = false;
-	private boolean memWrite = false; 
-	private boolean memRead = false;
-	private boolean memToReg = false;
-	private String aluOp = null;
-	
 	private String op;
-	
-	public boolean getRegDst() {
-		return regDst;
-	}
-	
-	public boolean getRegWrite() {
-		return regWrite;
-	}
-	
-	public boolean getAluSrc() {
-		return aluSrc;
-	}
-	
-	public boolean getMemWrite() {
-		return memWrite;
-	}
-	
-	public boolean getMemRead() {
-		return memRead;
-	}
-	
-	public boolean getMemToReg() {
-		return memToReg;
-	}
-	
-	public String getAluOp() {
-		return aluOp;
-	}
 	
 	public String getOp() {
 		return op;
@@ -62,14 +25,6 @@ public class InstructionController {
 		if (assembly == null || assembly.isEmpty()) {
 			return;
 		}
-		
-		regDst = false;
-		regWrite = false;
-		aluSrc = false;
-		memWrite = false;
-		memRead = false;
-		memToReg = false;
-		aluOp = null;
 		
 		for (int i = 0; i < registers.length; i++) {
 			
@@ -121,9 +76,6 @@ public class InstructionController {
 		array[0] = Integer.parseInt(values[0]);
 		array[1] = Integer.parseInt(values[1]);
 		
-		regWrite = true;
-		aluSrc = true;
-		
 		registers[array[0]].setText(array[1] + "");
 		registers[array[0]].setBackground(Color.white);
 	}
@@ -131,11 +83,6 @@ public class InstructionController {
 	private void treatLw(String[] ins) throws Exception {
 		
 		int[] array = treatWordOp(ins);
-		
-		regWrite = true;
-		aluSrc = true;
-		memRead = true;
-		memToReg = true;
 		
 		String text = registers[array[2]].getText();
 		
@@ -159,9 +106,6 @@ public class InstructionController {
 	private void treatSw(String[] ins) throws Exception {
 		
 		int[] array = treatWordOp(ins);
-		
-		aluSrc = true;
-		memWrite = true;
 		
 		String text = registers[array[0]].getText();
 		
@@ -188,10 +132,6 @@ public class InstructionController {
 		
 		int[] array = treatMathOp(ins);
 		
-		regDst = true;
-		regWrite = true;
-		aluOp = "+";
-		
 		String text1 = registers[array[1]].getText();
 		String text2 = registers[array[2]].getText();
 		
@@ -213,10 +153,6 @@ public class InstructionController {
 	private void treatSub(String[] ins) throws Exception {
 		
 		int[] array = treatMathOp(ins);
-		
-		regDst = true;
-		regWrite = true;
-		aluOp = "-";
 		
 		String text1 = registers[array[1]].getText();
 		String text2 = registers[array[2]].getText();
@@ -258,8 +194,6 @@ public class InstructionController {
 		if (array[0] == array[1]) {
 			throw new Exception();
 		}
-		
-		regWrite = true;
 		
 		registers[array[0]].setText(registers[array[1]].getText());
 		registers[array[0]].setBackground(Color.white);
