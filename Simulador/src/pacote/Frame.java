@@ -9,6 +9,7 @@ import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,7 +31,10 @@ public class Frame extends JFrame{
 	
 	public Frame() {
 		
+		ImageIcon image = new ImageIcon(getClass().getClassLoader().getResource("Imagem.png"));
+		
 		this.setTitle("Simulador Mips");
+		this.setIconImage(image.getImage());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		this.setLocationRelativeTo(null);
