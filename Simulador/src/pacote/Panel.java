@@ -20,7 +20,7 @@ public class Panel extends JPanel {
 	private int referenceX3 = 1100;
 	private int referenceY3 = 130;
 	
-	private String op;
+	private String op = null;
 	
 	public Panel(InstructionController inController) {
 		this.inController = inController;
@@ -148,7 +148,7 @@ public class Panel extends JPanel {
 
 	public void paint(Graphics g) {
 		
-		op = inController.getOp();
+		op = inController.getAssemblyOp();
 		
 		Graphics2D g2d = (Graphics2D) g;
 		
@@ -228,7 +228,7 @@ public class Panel extends JPanel {
 		if (op != null && (op.equalsIgnoreCase("sw") || op.equalsIgnoreCase("lw") || op.equalsIgnoreCase("li"))) {
 			g2d.setPaint(Color.red);
 		}
-		g2d.drawLine(200, 220, 200, 410);
+		g2d.drawLine(200, 225, 200, 410);
 		g2d.drawLine(200, 410, 350, 410);
 		g2d.drawLine(420, 410, 550, 410);
 		g2d.drawLine(550, 410, 550, 245);

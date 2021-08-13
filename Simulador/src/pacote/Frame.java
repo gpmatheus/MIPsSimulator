@@ -4,9 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -16,9 +18,14 @@ import javax.swing.JTextField;
 public class Frame extends JFrame{
 
 	private InstructionController inController;
+	
 	private Panel pan;
 	private JLabel[] registers = new JLabel[8];
 	private JLabel[] memory = new JLabel[40];
+	
+	private JLabel[][] instructions = new JLabel[5][];
+	private JLabel[] strings = new JLabel[5];
+	
 	private JTextField tField;
 	
 	public Frame() {
@@ -47,6 +54,7 @@ public class Frame extends JFrame{
 		addText(panel);
 		addAddButton(panel);
 		addRunButton(panel);
+		addClearButton(panel);
 	}
 	
 	private void addText(JPanel p) {
@@ -76,17 +84,32 @@ public class Frame extends JFrame{
 		panel.add(button);
 	}
 	
+	private void addClearButton(JPanel panel) {
+		
+		JButton button = new JButton();
+		button.setText("Limpar");
+		button.setPreferredSize(new Dimension(100, 25));
+		button.addActionListener(e -> inController.clearAssemblys());
+		
+		panel.add(button);
+	}
+	
 	private void addAssembly() {
-		inController.addAssembly(tField.getText());
+		try {
+			inController.compile(tField.getText());
+			repaint();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	private void executeCode() {
 		
 		try {
-			inController.compile();
+			inController.execute();
 			repaint();
 		} catch (Exception e) {
-			System.out.println("Deu erro");
+			System.out.println(e.getMessage());
 		}
 	}
 	
@@ -141,7 +164,43 @@ public class Frame extends JFrame{
 		panel.setBackground(new Color(100, 100, 100));
 		
 		JPanel panelForDraw = new JPanel();
+		panelForDraw.setLayout(new BoxLayout(panelForDraw, BoxLayout.PAGE_AXIS));
 		panelForDraw.setPreferredSize(new Dimension(600, 280));
+		
+		JPanel[] panels = new JPanel[5];
+		
+		int counter = 0;
+		
+		for (int i = 0; i < panels.length; i++) {
+			panels[i] = new JPanel();
+			panels[i].setLayout(new FlowLayout(FlowLayout.TRAILING, 30, 3));
+			
+			instructions[i] = new JLabel[instructions.length - counter];
+			strings[i] = new JLabel();
+			strings[i].setPreferredSize(new Dimension(120, 50));
+			strings[i].setFont(new Font("Serif", Font.BOLD, 18));
+			strings[i].setText(null);
+			
+			panels[i].add(strings[i]);
+			
+			for (int j = 0; j < instructions.length - counter; j++) {
+				
+				instructions[i][j] = new JLabel();
+				instructions[i][j].setPreferredSize(new Dimension(50, 50));
+				instructions[i][j].setHorizontalAlignment(JLabel.CENTER);
+				instructions[i][j].setFont(new Font("Serif", Font.BOLD, 18));
+				instructions[i][j].setForeground(new Color(150, 150, 150));
+				instructions[i][j].setText(null);
+				instructions[i][j].setBorder(BorderFactory.createLineBorder(Color.white));
+				
+				panels[i].add(instructions[i][j]);
+			}
+			
+			panelForDraw.add(panels[i]);
+			
+			counter++;
+		}
+				
 		panel.add(panelForDraw);
 		
 		p.add(panel, BorderLayout.SOUTH);
@@ -149,7 +208,7 @@ public class Frame extends JFrame{
 	
 	private void addDrawing(JPanel p) {
 		
-		inController = new InstructionController(registers, memory);
+		inController = new InstructionController(registers, memory, instructions, strings);
 		pan = new Panel(inController);
 		
 		p.add(pan, BorderLayout.CENTER);

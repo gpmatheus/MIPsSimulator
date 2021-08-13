@@ -1,7 +1,6 @@
 
 package pacote;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -9,46 +8,45 @@ import javax.swing.JLabel;
 
 public class InstructionController {
 	
-	private JLabel[] registers;
-	private JLabel[] memory;
+	private List<AssemblyOp> assemblys = new ArrayList<>();
+	private AssemblyOp currentAssembly = null;
+	private MemoryRegisterController memCon;
+	private PipeLineController pipeController;
+	
 	private String op;
-	private List<String> assemblys = new ArrayList<>();
 	
-	public String getOp() {
-		return op;
+	public InstructionController(JLabel[] registers, JLabel[] memory, JLabel[][] instructions, JLabel[] strings) {
+		memCon = new MemoryRegisterController(registers, memory);
+		pipeController = new PipeLineController(assemblys, instructions, strings);
 	}
 	
-	public InstructionController(JLabel[] registers, JLabel[] memory) {
-		this.registers = registers;
-		this.memory = memory;
+	public String getAssemblyOp() {
+		if (currentAssembly == null) {
+			return null;
+		}
+		
+		return currentAssembly.getOp();
 	}
 	
-	public void addAssembly(String assembly) {
-		if (assembly != null && !assembly.isEmpty()) {
-			assemblys.add(assembly);
+	public void clearAssemblys() {
+		assemblys.clear();
+		pipeController.execute();
+	}
+	
+	public void execute() {
+		
+		try {
+			if (!assemblys.isEmpty()) {
+				currentAssembly = assemblys.get(0);
+				memCon.executeAssembly(assemblys.remove(0));
+				pipeController.execute();
+			}
+		} catch (Exception e) {
+			System.out.println("Deu erro");
 		}
 	}
 	
-	public void compile() throws Exception {
-		
-		String assembly = null;
-		op = null;
-		
-		for (int i = 0; i < registers.length; i++) {
-			
-			registers[i].setBackground(Color.black);
-		}
-		
-		for (int j = 0; j < memory.length; j++) {
-			
-			memory[j].setBackground(Color.black);
-		}
-		
-		if (!assemblys.isEmpty()) {
-			assembly = assemblys.remove(0);
-		} else {
-			return;
-		}
+	public void compile(String assembly) throws Exception {
 		
 		String[] ins = assembly.split("\\s+");
 		
@@ -58,25 +56,30 @@ public class InstructionController {
 		
 		op = ins[0];
 		
-		if (ins[0].equalsIgnoreCase("li")) {
-			treatLi(ins);
-		} else if (ins[0].equalsIgnoreCase("lw")) {
-			treatLw(ins);
-		} else if (ins[0].equalsIgnoreCase("sw")) {
-			treatSw(ins);
-		} else if (ins[0].equalsIgnoreCase("add")) {
-			treatAdd(ins);
-		} else if (ins[0].equalsIgnoreCase("sub")) {
-			treatSub(ins);
-		} else if (ins[0].equalsIgnoreCase("mov")) {
-			treatMovOp(ins);
-		} else {
-			throw new Exception();
+		switch (op) {
+			case "li":
+				treatLi(ins, assembly);
+				break;
+			case "lw":
+			case "sw":
+				treatWordOp(ins, assembly);
+				break;
+			case "add":
+			case "sub":
+				treatMathOp(ins, assembly);
+				break;
+			case "mov":
+				treatMovOp(ins, assembly);
+				break;
+			default:
+				throw new Exception();
 		}
+		
+		pipeController.execute();
 		
 	}
 	
-	private void treatLi(String[] ins) throws Exception {
+	private void treatLi(String[] ins, String assembly) throws Exception {
 		
 		int[] array = new int[2];
 		
@@ -90,103 +93,17 @@ public class InstructionController {
 		array[0] = Integer.parseInt(values[0]);
 		array[1] = Integer.parseInt(values[1]);
 		
-		registers[array[0]].setText(array[1] + "");
-		registers[array[0]].setBackground(Color.white);
+		AssemblyOp assemblyOp = new AssemblyOp();
+		
+		assemblyOp.setOp(op);
+		assemblyOp.setValue1(array[0]);
+		assemblyOp.setValue2(array[1]);
+		assemblyOp.setAssembly(assembly);
+		
+		assemblys.add(assemblyOp);
 	}
 	
-	private void treatLw(String[] ins) throws Exception {
-		
-		int[] array = treatWordOp(ins);
-		
-		String text = registers[array[2]].getText();
-		
-		if (text.equalsIgnoreCase("null")) {
-			throw new Exception();
-		}
-		
-		int content = Integer.parseInt(text);
-		
-		int memoryIndex = content + array[1];
-		
-		if (memoryIndex > 40 - 1) {
-			throw new Exception();
-		}
-		
-		registers[array[0]].setText(memory[memoryIndex].getText());
-		registers[array[0]].setBackground(Color.white);
-		memory[memoryIndex].setBackground(Color.white);
-	}
-	
-	private void treatSw(String[] ins) throws Exception {
-		
-		int[] array = treatWordOp(ins);
-		
-		String text = registers[array[0]].getText();
-		
-		if (text.equalsIgnoreCase("null")) {
-			throw new Exception();
-		}
-		
-		int content = Integer.parseInt(text);
-		
-		String indexText = registers[array[2]].getText();
-		
-		if (indexText.equalsIgnoreCase("null")) {
-			throw new Exception();
-		}
-		
-		int index = Integer.parseInt(indexText) + array[1];
-		
-		memory[index].setText(content + "");
-		registers[array[0]].setBackground(Color.white);
-		memory[index].setBackground(Color.white);
-	}
-	
-	private void treatAdd(String[] ins) throws Exception {
-		
-		int[] array = treatMathOp(ins);
-		
-		String text1 = registers[array[1]].getText();
-		String text2 = registers[array[2]].getText();
-		
-		if (text1.equalsIgnoreCase("null") || text2.equalsIgnoreCase("null")) {
-			throw new Exception();
-		}
-		
-		int content1 = Integer.parseInt(text1);
-		int content2 = Integer.parseInt(text2);
-		
-		int sum = content1 + content2;
-		
-		registers[array[0]].setText(sum + "");
-		registers[array[0]].setBackground(Color.white);
-		registers[array[1]].setBackground(Color.white);
-		registers[array[2]].setBackground(Color.white);
-	}
-	
-	private void treatSub(String[] ins) throws Exception {
-		
-		int[] array = treatMathOp(ins);
-		
-		String text1 = registers[array[1]].getText();
-		String text2 = registers[array[2]].getText();
-		
-		if (text1.equalsIgnoreCase("null") || text2.equalsIgnoreCase("null")) {
-			throw new Exception();
-		}
-		
-		int content1 = Integer.parseInt(text1);
-		int content2 = Integer.parseInt(text2);
-		
-		int sub = content1 - content2;
-		
-		registers[array[0]].setText(sub + "");
-		registers[array[0]].setBackground(Color.white);
-		registers[array[1]].setBackground(Color.white);
-		registers[array[2]].setBackground(Color.white);
-	}
-	
-	private void treatMovOp(String[] ins) throws Exception {
+	private void treatMovOp(String[] ins, String assembly) throws Exception {
 		
 		int[] array = new int[2];
 		
@@ -209,12 +126,17 @@ public class InstructionController {
 			throw new Exception();
 		}
 		
-		registers[array[0]].setText(registers[array[1]].getText());
-		registers[array[0]].setBackground(Color.white);
-		registers[array[1]].setBackground(Color.white);
+		AssemblyOp assemblyOp = new AssemblyOp();
+		
+		assemblyOp.setOp(op);
+		assemblyOp.setValue1(array[0]);
+		assemblyOp.setValue2(array[1]);
+		assemblyOp.setAssembly(assembly);
+		
+		assemblys.add(assemblyOp);
 	}
 	
-	private int[] treatWordOp(String[] ins) throws Exception {
+	private void treatWordOp(String[] ins, String assembly) throws Exception {
 		
 		int[] array = new int[3];
 		
@@ -242,11 +164,18 @@ public class InstructionController {
 			throw new Exception();
 		}
 		
-		return array;
-
+		AssemblyOp assemblyOp = new AssemblyOp();
+		
+		assemblyOp.setOp(op);
+		assemblyOp.setValue1(array[0]);
+		assemblyOp.setValue2(array[1]);
+		assemblyOp.setValue3(array[2]);
+		assemblyOp.setAssembly(assembly);
+		
+		assemblys.add(assemblyOp);
 	}
 	
-	private int[] treatMathOp(String[] ins) throws Exception {
+	private void treatMathOp(String[] ins, String assembly) throws Exception {
 		
 		int[] array = new int[3];
 		
@@ -271,7 +200,15 @@ public class InstructionController {
 			throw new Exception();
 		}
 		
-		return array;
+		AssemblyOp assemblyOp = new AssemblyOp();
+		
+		assemblyOp.setOp(op);
+		assemblyOp.setValue1(array[0]);
+		assemblyOp.setValue2(array[1]);
+		assemblyOp.setValue3(array[2]);
+		assemblyOp.setAssembly(assembly);
+		
+		assemblys.add(assemblyOp);
 	}
 	
 }
