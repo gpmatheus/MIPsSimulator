@@ -24,62 +24,54 @@ public class PipeLineController {
 		
 		setBlank();
 		
-		int index;
-		
 		int lineLength = assemblys.size();
-		
-		int deslocamento;
 		
 		for (int i = 0; i < lineLength && i < instructions.length; i++) {
 			
-			strings[i].setText(assemblys.get(i).getAssembly());
-			
-			index = 3;
-			
-			if (assemblys.get(i).getOp().equals("lw")) {
-				if (assemblys.size() - 1 > i) {
-					
-					for (int n = 1; n <= 3 && n < assemblys.size(); n++) {
-						if (assemblys.get(i + n).getOp().equals("add") || assemblys.get(i + n).getOp().equals("sub")) {
-							if (assemblys.get(i).getValue1() == assemblys.get(i + n).getValue2() || assemblys.get(i).getValue1() == assemblys.get(i + n).getValue3()) {
-								index -= n;
-								assemblys.get(i + n).setBublle(true, index);
-							}
-						} else if (assemblys.get(i + n).getOp().equals("lw") || assemblys.get(i + n).getOp().equals("sw")) {
-							if (assemblys.get(i).getValue1() == assemblys.get(i + n).getValue3()) {
-								index -= n;
-								assemblys.get(i + n).setBublle(true, index);
-							}
-						} else if (assemblys.get(i + n).getOp().equals("mov")){
-							if (assemblys.get(i).getValue1() == assemblys.get(i + n).getValue2()) {
-								index -= n;
-								assemblys.get(i + n).setBublle(true, index);
-							}
-						}
-					}
-				}
-			}
-			
-			deslocamento = 0;
-			
-			for (int j = 0; j < instructions[i].length && j < signs.length; j++) {
+			if (assemblys.get(i).getOp().equalsIgnoreCase("lw")) {
 				
-				if(assemblys.get(i).hasABubble() && assemblys.get(i).getIndex() == j){
-					deslocamento++;
-					
-					index = assemblys.get(i).getIndex() - 1;
-					for (int n = i + 1; n < assemblys.size() && index >= 0; n++) {
-						assemblys.get(n).setBublle(true, index);
-						index--;
-					}
-				} else if (i > 0 && assemblys.get(i - 1).hasABubble() && assemblys.get(i - 1).getIndex() == 0) {
-					
-					assemblys.get(i).setBublle(true, 0);
-				} else {
-					instructions[i][j].setText(signs[j - deslocamento]);
+				checkForBubbles(i, lineLength);
+			}
+			
+			int signsCounter = 0;
+			
+			if (i > 0 && !assemblys.get(i - 1).getBubbles().isEmpty() && assemblys.get(i - 1).getBubbles().contains(0)) {
+				assemblys.get(i).addBubble(0);
+			}
+			
+			for (int j = 0; j < instructions[i].length && signsCounter < signs.length; j++) {
+				
+				if (!assemblys.get(i).getBubbles().contains(j)) {
+					instructions[i][j].setText(signs[signsCounter]);
 					instructions[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
+					signsCounter++;
 				}
 			}
+			
+			strings[i].setText(assemblys.get(i).getAssembly());
+		}
+	}
+	
+	public void checkForBubbles (int i, int lineLength) {
+		
+		int value = assemblys.get(i).getValue1();
+		for (int j = i; j <= i + 1 && j < instructions.length && j < lineLength; j++) {
+			
+			AssemblyOp op = assemblys.get(j);
+			
+			if ((op.getOp().equalsIgnoreCase("add") || op.getOp().equalsIgnoreCase("sub")) && (op.getValue2() == value || op.getValue3() == value)) {
+				
+				setBubbles(i, j);
+			}
+		}
+	}
+	
+	public void setBubbles(int sourceBubbleIndex, int opIndex) {
+		
+		int offSet = (5 - sourceBubbleIndex) - 3;
+		for (int i = opIndex; i < assemblys.size() && offSet >= 0; i++, offSet--) {
+			
+			assemblys.get(i).addBubble(offSet);
 		}
 	}
 	

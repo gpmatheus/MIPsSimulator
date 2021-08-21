@@ -1,5 +1,8 @@
 package pacote;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class AssemblyOp {
 
 	private String op = null;
@@ -7,20 +10,14 @@ public class AssemblyOp {
 	private int value2;
 	private int value3;
 	private String assembly = null;
-	private boolean hasBubble = false;
-	private int bubbleIndex = 0;
+	private List<Integer> bubbles = new ArrayList<>();
 	
-	public void setBublle(boolean b, int value) {
-		hasBubble = b;
-		bubbleIndex = value;
+	public List<Integer> getBubbles() {
+		return bubbles;
 	}
 	
-	public boolean hasABubble() {
-		return hasBubble;
-	}
-	
-	public int getIndex() {
-		return bubbleIndex;
+	public void addBubble(int bubble) {
+		bubbles.add(bubble);
 	}
 	
 	public void setAssembly(String assembly) {
